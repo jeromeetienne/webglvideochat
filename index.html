@@ -162,7 +162,8 @@ require(['tquery.pproc', 'tquery.checkerboard', 'tquery.fog', 'tquery.light', 't
 		// connect the server
 		var room	= window.location.hash.slice(1);
 		var serverUrl	= "ws://localhost:4000/";
-		rtc.connect(serverUrl, room);
+		var serverUrl	= "ws://107.20.223.140";
+		rtc.connect(serverUrl, room); 
 
 		rtc.on('disconnect stream', function(socketId) {
 			console.log('remove ' + socketId);
