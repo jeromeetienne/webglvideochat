@@ -186,9 +186,13 @@ if( hasWebGL === false || hasWebRTC === false ){
 		element.href	= element.innerText	= window.location;
 		
 		// connect the server
+	        var onLocalhost	= window.location.hostname === 'localhost'
+        				||  window.location.hostname === '127.0.0.1'
+	        var serverUrl	= onLocalhost ? 'ws://localhost:4000/' : 'ws://jetienne.webglmeeting-server.jit.su/';
 		var room	= window.location.hash.slice(1);
-		var serverUrl	= "ws://localhost:4000/";
-		var serverUrl	= "ws://107.20.223.140";
+		
+		console.log('connecting', serverUrl, 'room', room)
+		
 		rtc.connect(serverUrl, room); 
 
 		rtc.on('disconnect stream', function(socketId) {
