@@ -2,6 +2,32 @@
 <script src="vendor/tquery/tquery-bundle-require.js"></script>
 <script src='vendor/tquery/ColladaLoader.js'></script>
 <script src="vendor/webrtc.io-client/webrtc.io.js"></script>
+
+
+<script src="vendor/tquery/plugins/checkerboard/tquery.checkerboard.js"></script>
+
+<script src="vendor/tquery/plugins/fog/tquery.world.createfog.js"></script>
+
+<script src="vendor/tquery/plugins/light/tquery.light.shadow.js"></script>
+
+<script src="vendor/three.js/ShaderExtras.js"></script>
+<script src="vendor/three.js/postprocessing/EffectComposer.js"></script>
+<script src="vendor/three.js/postprocessing/BloomPass.js"></script>
+<script src="vendor/three.js/postprocessing/DotScreenPass.js"></script>
+<script src="vendor/three.js/postprocessing/FilmPass.js"></script>
+<script src="vendor/three.js/postprocessing/MaskPass.js"></script>
+<script src="vendor/three.js/postprocessing/RenderPass.js"></script>
+<script src="vendor/three.js/postprocessing/SavePass.js"></script>
+<script src="vendor/three.js/postprocessing/ShaderPass.js"></script>
+<script src="vendor/three.js/postprocessing/TexturePass.js"></script>
+<script src="vendor/tquery/plugins/pproc/tquery.effectcomposer.js"></script>
+
+<script src="vendor/tquery/plugins/skymap/tquery.skymap.js"></script>
+<script src="vendor/tquery/plugins/skymap/tquery.cubetexture.js"></script>
+
+<script src="vendor/tquery/plugins/text/fonts/droid/droid_serif_bold.typeface.js"></script>
+<script src="vendor/tquery/plugins/text/tquery.text.js"></script>
+
 <base target='_blank'/>
 <body><div id='info' style='color: #aaa;'>
 	<span style='font-size: 140%'>WebGL Meeting - Chat with friends in 3D</span>
@@ -68,7 +94,7 @@ if( hasWebGL === false || hasWebRTC === false ){
 	})();
 }
 
-require(['tquery.pproc', 'tquery.checkerboard', 'tquery.fog', 'tquery.light', 'tquery.text', 'tquery.skymap'], function(){
+// require(['tquery.pproc', 'tquery.checkerboard', 'tquery.fog', 'tquery.light', 'tquery.text', 'tquery.skymap'], function(){
 
 	if( hasWebGL === false || hasWebRTC === false )	return;
 	
@@ -292,7 +318,7 @@ require(['tquery.pproc', 'tquery.checkerboard', 'tquery.fog', 'tquery.light', 't
 
 		return tvSet;
 	}
-});
+//});
 </script>
 <!-- webrtc logo -->
 <a href="http://www.webrtc.org" style="position: absolute; top: 10px; left: 10px; border: 0; z-index:1;"><img id="logo" alt="WebRTC" src="images/webrtc_black_20p.png"></a>
