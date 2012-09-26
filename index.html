@@ -105,6 +105,7 @@ if( hasWebGL === false || hasWebRTC === false ){
 
 	document.getElementById('stats').style.bottom = '28px';
 	world.tRenderer().setClearColorHex( 0x000000, 1 );
+	world.tRenderer().setClearColorHex( 0xffffff, 1 );
 	world.getCameraControls().rangeX	*= 0.3;
 	world.getCameraControls().rangeY	*= 0.05;
 	//tQuery.world.getCameraControls().target.y = -2;
@@ -123,7 +124,7 @@ if( hasWebGL === false || hasWebRTC === false ){
 		segmentsH	: 20
 	}).addTo(world).scaleBy(40).translateY(-2).receiveShadow(true);
 	
-	world.addEffectComposer().film(0.25, 0.25, 2*648, false).vignette().finish();
+//	world.addEffectComposer().film(0.25, 0.25, 2*648, false).vignette().finish();
 
 	tQuery.createAmbientLight().addTo(world).color(0x444444);	
 	tQuery.createDirectionalLight().addTo(world)
@@ -151,13 +152,13 @@ if( hasWebGL === false || hasWebRTC === false ){
 		//console.log('ObjectLoaded');
 		loadedModel	= collada.scene;
 		var tvSet	= createTvSet('local');
+		var tvSet	= createTvSet();
+		var tvSet	= createTvSet();
 		// var tvSet	= createTvSet();
 		// var tvSet	= createTvSet();
 		// var tvSet	= createTvSet();
 		// var tvSet	= createTvSet();
-		// var tvSet	= createTvSet();
-		// var tvSet	= createTvSet();
-		// var tvSet	= createTvSet();
+		//var tvSet	= createTvSet();
 		next(tvSet);
 	}).seq(function(next, tvSet){
 		// start
@@ -271,10 +272,35 @@ if( hasWebGL === false || hasWebRTC === false ){
 	
 	function reflowTvSets(){
 		var tvSets	= tQuery('.tvSet').get();
-		var radiusX	= 5;
-		var radiusZ	= 5;
-		var camPosZ	= 3;
-		var totRange	= 0.5*Math.PI;
+		if( tvSets.length >= 8 ){
+			var radiusX = 7;	var radiusZ =10;
+			var camPosZ =10;	var totRange= .95*Math.PI;
+			world.addFogExp2({density: 0.03});
+		}else if( tvSets.length >= 7 ){
+			var radiusX = 7;	var radiusZ = 8;
+			var camPosZ = 9;	var totRange= 0.9*Math.PI;
+			world.addFogExp2({density: 0.03});
+		}else if( tvSets.length >= 6 ){
+			var radiusX = 7;	var radiusZ = 7;
+			var camPosZ = 8;	var totRange= 0.8*Math.PI;
+			world.addFogExp2({density: 0.04});
+		}else if( tvSets.length >= 5 ){
+			var radiusX = 6;	var radiusZ = 6;
+			var camPosZ = 7;	var totRange= 0.8*Math.PI;
+			world.addFogExp2({density: 0.05});
+		}else if( tvSets.length >= 4 ){
+			var radiusX = 6;	var radiusZ = 5;
+			var camPosZ = 6;	var totRange= 0.7*Math.PI;
+			world.addFogExp2({density: 0.05});
+		}else if( tvSets.length >= 3 ){
+			var radiusX = 5;	var radiusZ = 5;
+			var camPosZ = 4;	var totRange= 0.7*Math.PI;
+			world.addFogExp2({density: 0.05});
+		}else{
+			var radiusX = 5;	var radiusZ = 5;
+			var camPosZ = 3;	var totRange= 0.5*Math.PI;
+			world.addFogExp2({density: 0.06});
+		}
 		world.tCamera().position.z	= camPosZ;		
 		tvSets.forEach(function(object3D, index){
 			var base	= 3*Math.PI/2;
