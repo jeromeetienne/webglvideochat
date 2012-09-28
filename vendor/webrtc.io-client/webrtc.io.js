@@ -1,9 +1,10 @@
 //CLIENT
 
  // Fallbacks for vendor-specific variables until the spec is finalized.
-var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
+var PeerConnection = window.webkitRTCPeerConnection;
 var URL = window.URL || window.webkitURL || window.msURL || window.oURL;
 var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+var pc;
 
 (function() {
 
@@ -40,7 +41,7 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
   };
 
   // Holds the STUN server to use for PeerConnections.
-  rtc.SERVER = "STUN stun.l.google.com:19302";
+  rtc.SERVER = {iceServers:[{url:"stun:stun.l.google.com:19302"}]};
 
   // Referenc e to the lone PeerConnection instance.
   rtc.peerConnections = {};
@@ -92,8 +93,8 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       });
 
       rtc.on('receive_ice_candidate', function(data) {
-        var candidate = new IceCandidate(data.label, data.candidate);
-        rtc.peerConnections[data.socketId].processIceMessage(candidate);
+        var candidate = new RTCIceCandidate(data);
+        rtc.peerConnections[data.socketId].addIceCandidate(candidate);
         
         rtc.fire('receive ice candidate', candidate);
       });
@@ -101,7 +102,7 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       rtc.on('new_peer_connected', function(data) {
         rtc.connections.push(data.socketId);
 
-        var pc = rtc.createPeerConnection(data.socketId);
+        pc = rtc.createPeerConnection(data.socketId);
         for (var i = 0; i < rtc.streams.length; i++) {
           var stream = rtc.streams[i];
           pc.addStream(stream);
@@ -149,21 +150,23 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
 
   rtc.createPeerConnection = function(id) {
     console.log('createPeerConnection');
-    var pc = rtc.peerConnections[id] = new PeerConnection(rtc.SERVER, function(candidate, moreToFollow) {
-      if (candidate) {
+    pc = rtc.peerConnections[id] = new PeerConnection(rtc.SERVER); 
+    pc.onicecandidate = function(event) {
+      if (event.candidate) {
         rtc._socket.send(JSON.stringify({
           "eventName": "send_ice_candidate",
           "data": {
-            "label": candidate.label,
-            "candidate": candidate.toSdp(),
+            "sdpMid": event.candidate.sdpMid,
+            "candidate": event.candidate.candidate,
+            "sdpMLineIndex": event.candidate.sdpMLineIndex,
             "socketId": id
           }
         }), function(error){
           if(error){console.log(error);}
         });
       }
-      rtc.fire('ice candidate', candidate, moreToFollow);
-    });
+      rtc.fire('ice candidate', event.candidate);
+    };
 
     pc.onopen = function() {
       // TODO: Finalize this API
@@ -178,58 +181,50 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
   };
 
   rtc.sendOffer = function(socketId) {
-    var pc = rtc.peerConnections[socketId];
+    pc = rtc.peerConnections[socketId];
     // TODO: Abstract away video: true, audio: true for offers
-    var offer = pc.createOffer({
-      video: true,
-      audio: true
+    pc.createOffer( function(session_description) {
+      pc.setLocalDescription(session_description);
+      rtc._socket.send(JSON.stringify({
+        "eventName": "send_offer",
+        "data": {
+          "socketId": socketId,
+          "sdp": session_description
+        }
+      }), function(error){
+            if(error){console.log(error);}
+          });
     });
-    pc.setLocalDescription(pc.SDP_OFFER, offer);
-    rtc._socket.send(JSON.stringify({
-      "eventName": "send_offer",
-      "data": {
-        "socketId": socketId,
-        "sdp": offer.toSdp()
-      }
-    }), function(error){
-          if(error){console.log(error);}
-        });
-    pc.startIce();
   };
 
 
   rtc.receiveOffer = function(socketId, sdp) {
-    var pc = rtc.peerConnections[socketId];
-    pc.setRemoteDescription(pc.SDP_OFFER, new SessionDescription(sdp));
+    pc = rtc.peerConnections[socketId];
+    pc.setRemoteDescription(new RTCSessionDescription(sdp));
     rtc.sendAnswer(socketId);
   };
 
 
   rtc.sendAnswer = function(socketId) {
-    var pc = rtc.peerConnections[socketId];
-    var offer = pc.remoteDescription;
+    pc = rtc.peerConnections[socketId];
     // TODO: Abstract away video: true, audio: true for answers
-    var answer = pc.createAnswer(offer.toSdp(), {
-      video: true,
-      audio: true
+      pc.createAnswer( function(session_description) {
+      pc.setLocalDescription(session_description);
+      rtc._socket.send(JSON.stringify({
+        "eventName": "send_answer",
+        "data":{
+          "socketId": socketId,
+          "sdp": session_description
+        }
+      }), function(error){
+            if(error){console.log(error);}
+          });
     });
-    pc.setLocalDescription(pc.SDP_ANSWER, answer);
-    rtc._socket.send(JSON.stringify({
-      "eventName": "send_answer",
-      "data":{
-        "socketId": socketId,
-        "sdp": answer.toSdp()
-      }
-    }), function(error){
-          if(error){console.log(error);}
-        });
-    pc.startIce();
   };
 
-
   rtc.receiveAnswer = function(socketId, sdp) {
-    var pc = rtc.peerConnections[socketId];
-    pc.setRemoteDescription(pc.SDP_ANSWER, new SessionDescription(sdp));
+    pc = rtc.peerConnections[socketId];
+    pc.setRemoteDescription(new RTCSessionDescription(sdp));
   };
 
 
