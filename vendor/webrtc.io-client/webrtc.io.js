@@ -102,7 +102,7 @@ var pc;
       rtc.on('new_peer_connected', function(data) {
         rtc.connections.push(data.socketId);
 
-        pc = rtc.createPeerConnection(data.socketId);
+        var pc = rtc.createPeerConnection(data.socketId);
         for (var i = 0; i < rtc.streams.length; i++) {
           var stream = rtc.streams[i];
           pc.addStream(stream);
@@ -150,15 +150,13 @@ var pc;
 
   rtc.createPeerConnection = function(id) {
     console.log('createPeerConnection');
-    pc = rtc.peerConnections[id] = new PeerConnection(rtc.SERVER); 
+    var pc = rtc.peerConnections[id] = new PeerConnection(rtc.SERVER); 
     pc.onicecandidate = function(event) {
       if (event.candidate) {
         rtc._socket.send(JSON.stringify({
           "eventName": "send_ice_candidate",
           "data": {
-            "sdpMid": event.candidate.sdpMid,
             "candidate": event.candidate.candidate,
-            "sdpMLineIndex": event.candidate.sdpMLineIndex,
             "socketId": id
           }
         }), function(error){
@@ -181,7 +179,7 @@ var pc;
   };
 
   rtc.sendOffer = function(socketId) {
-    pc = rtc.peerConnections[socketId];
+    var pc = rtc.peerConnections[socketId];
     // TODO: Abstract away video: true, audio: true for offers
     pc.createOffer( function(session_description) {
       pc.setLocalDescription(session_description);
@@ -199,14 +197,14 @@ var pc;
 
 
   rtc.receiveOffer = function(socketId, sdp) {
-    pc = rtc.peerConnections[socketId];
+    var pc = rtc.peerConnections[socketId];
     pc.setRemoteDescription(new RTCSessionDescription(sdp));
     rtc.sendAnswer(socketId);
   };
 
 
   rtc.sendAnswer = function(socketId) {
-    pc = rtc.peerConnections[socketId];
+    var pc = rtc.peerConnections[socketId];
     // TODO: Abstract away video: true, audio: true for answers
       pc.createAnswer( function(session_description) {
       pc.setLocalDescription(session_description);
@@ -223,7 +221,7 @@ var pc;
   };
 
   rtc.receiveAnswer = function(socketId, sdp) {
-    pc = rtc.peerConnections[socketId];
+    var pc = rtc.peerConnections[socketId];
     pc.setRemoteDescription(new RTCSessionDescription(sdp));
   };
 
