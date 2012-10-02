@@ -123,7 +123,8 @@ if( hasWebGL === false || hasWebRTC === false ){
 		segmentsH	: 20
 	}).addTo(world).scaleBy(40).translateY(-2).receiveShadow(true);
 	
-	world.addEffectComposer().film(0.1, 1, 1*648, false).vignette().finish();
+	//world.addEffectComposer().film(0.1, 1, 1*648, false).vignette().finish();
+	world.addEffectComposer().vignette().finish();
 
 	tQuery.createAmbientLight().addTo(world).color(0x444444);	
 	tQuery.createDirectionalLight().addTo(world)
@@ -333,7 +334,7 @@ if( hasWebGL === false || hasWebRTC === false ){
 		texture.repeat.set(-1, 1);
 		texture.offset.set( 1, 0);
 		tQuery.createPlane().addTo(tvSet)
-			.position(0, 3.55*scale, 0.8*scale)
+			.position(0, 3.55*scale, 0.9*scale)
 			.scale(2.1*scale, 1.6*scale, 1*scale)
 			.addClass('screen')
 			.setLambertMaterial()
