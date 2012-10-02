@@ -105,7 +105,7 @@ if( hasWebGL === false || hasWebRTC === false ){
 
 	document.getElementById('stats').style.bottom = '28px';
 	world.tRenderer().setClearColorHex( 0x000000, 1 );
-	world.tRenderer().setClearColorHex( 0xffffff, 1 );
+	//world.tRenderer().setClearColorHex( 0xffffff, 1 );
 	world.getCameraControls().rangeX	*= 0.3;
 	world.getCameraControls().rangeY	*= 0.05;
 	//tQuery.world.getCameraControls().target.y = -2;
@@ -124,7 +124,7 @@ if( hasWebGL === false || hasWebRTC === false ){
 		segmentsH	: 20
 	}).addTo(world).scaleBy(40).translateY(-2).receiveShadow(true);
 	
-//	world.addEffectComposer().film(0.25, 0.25, 2*648, false).vignette().finish();
+	world.addEffectComposer().film(0.1, 1, 1*648, false).vignette().finish();
 
 	tQuery.createAmbientLight().addTo(world).color(0x444444);	
 	tQuery.createDirectionalLight().addTo(world)
@@ -152,8 +152,8 @@ if( hasWebGL === false || hasWebRTC === false ){
 		//console.log('ObjectLoaded');
 		loadedModel	= collada.scene;
 		var tvSet	= createTvSet('local');
-		var tvSet	= createTvSet();
-		var tvSet	= createTvSet();
+		// var tvSet	= createTvSet();
+		// var tvSet	= createTvSet();
 		// var tvSet	= createTvSet();
 		// var tvSet	= createTvSet();
 		// var tvSet	= createTvSet();
