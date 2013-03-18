@@ -1,0 +1,51 @@
+#### TODO
+* add more confrequire files
+* DONE merge that in tquery-bundle-require
+* see how to change directory depth
+  * from require.js config pov. rewrite rules build/plugins/threex ?
+  * see baseUrl case
+* test it in playground
+  * no r.js there
+  * what about url relocation
+  * i want both to be nice on source and in playground without notification
+  * it is possible with same level of hierachy for both ?
+    * testable now with same code as index-dev
+  * use requirejs.config({baseUrl:'./'})
+
+<!doctype html><title>tQuery minimal page</title>
+<script src="../../../build/tquery-bundle.js"></script>
+<script src="../../../plugins/requirejs/vendor/require.js"></script>
+<script src="../../../plugins/requirejs/build/all.confrequire.js"></script>
+<body><script>
+  require(['tquery.keyboard'], function(){
+    var world = tQuery.createWorld().boilerplate().start();
+    var object = tQuery.createTorus().addTo(world);
+    world.hook(function(delta, now){
+      var curScale  = object.get(0).scale.x;
+      var dstScale  = tQuery.keyboard().pressed('a') ? 2 : 1;
+      object.scale( curScale + (dstScale-curScale)*0.1 );
+    });
+  });
+</script></body>
+
+
+#### TODO threejstool
+* find a way to test this require.js stuff in a threejstool project
+* do the
+threejs init [threejs, tquery] default to tquery
+threejs library install
+threejs library update
+threejs plugin install keyboard
+threejs plugin list
+threejs plugin uninstall keyboard
+threejs build
+
+#### DONE
+* DONE tomainconfig.js is a step for r.js
+  * it is currently mixed in makefile and node.js
+  * all that will end up in threejstool
+  * so put it all in node.js
+* DONE put require.js in /vendor
+* DONE put all.confrequire.js in /build
+* DONE put allmerged.confrequire.js /build
+* DONE put tomainconfigfile.js in /bin

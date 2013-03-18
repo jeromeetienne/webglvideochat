@@ -1,0 +1,135 @@
+<!doctype html>
+<script src="../../../build/tquery-bundle.js"></script>
+<script src="../../../plugins/requirejs/vendor/require.js"></script>
+<script src="../../../plugins/requirejs/build/all.confrequire.js"></script>
+<body><script>
+	require([
+			'tquery.planets','tquery.keyboard',
+			'tquery.minecraft', 'tquery.skymap',
+			'tquery.videos',
+			'tquery.text', 
+			//'tquery.text.allfonts',
+			'tquery.domevent',
+			'tquery.pproc',
+			'tquery.tweenjs',
+			'tquery.lightsaber',
+			'tquery.lensflare',
+			'tquery.datguituner',
+			'tquery.csg',
+			//'webgl-inspector',
+			'tquery.grassground',
+			'tquery.md2character',
+			'tquery.statsplus',
+			'tquery.simplemaze'
+		], function(){
+		var world	= tQuery.createWorld().boilerplate().start();
+
+		// add a graddground
+		if( false ){
+			tQuery.createGrassGround({
+				textureRepeatX	: 10,
+				textureRepeatY	: 10,
+			}).addTo(world)
+				.scale(30)
+		}
+
+		world.enableStatsPlus();
+
+		// add a md2character
+		if( false ){
+			var character	= new tQuery.RatamahattaMD2Character().attach(world).hookKeyboard();
+			character.bind("loaded", function(){
+				console.log("list animmation", Object.keys(character._meshBody.geometry.animations))
+			});			
+		}
+
+		// create the saber	
+		if( false ){
+			var saber	= tQuery.createLightSaber().addTo(world);
+			// change the material of the hilt
+			var material	= new THREE.MeshBasicMaterial({
+				color	: 0x44aaFF,
+				envMap	: tQuery.createCubeTexture('skybox')
+			})
+			saber.object3D('hiltIn').material(material)
+			saber.object3D('hiltOut').material(material)
+		}
+	
+		// world.removeCameraControls();
+		// tQuery.createLensFlare().addTo(world).position(0, 1, -3)
+
+		// create cube for csg
+		// var cube	= tQuery.createCube().geometry().translateX(0.6).back();
+		// var sphere	= tQuery.createSphere().geometry().translateX(1).back();	
+		// world.add(cube.subtract(sphere).id('origCube').geometry().center().back());
+
+		// setup light
+		// tQuery.createDirectionalLight().addTo(world).position(1,1,1);
+		// tQuery.createDirectionalLight().addTo(world).position(-1,1,1);
+		// tQuery.createAmbientLight().addTo(world).color(0xFFFFFF);
+		
+		if( true ){
+			var planet	= tQuery.createPlanet().addTo(world)
+			 			.translateX(-1);			
+		}
+
+		//tQuery.DatguiTuner('light');
+		
+		// add a minecraft character
+		if( true ){
+			var minecraft	= tQuery.createMinecraftChar().addTo(world);
+			minecraft.loadSkin(tQuery.MinecraftChar.baseUrl+'examples/images/agentsmith.png')
+			minecraft.object3D('root').translateY(-0.5)
+			// init bodyAnims
+			var bodyAnims	= new tQuery.MinecraftCharAnimations(minecraft);
+			bodyAnims.start('walk');
+		}
+	
+		// // add text
+		// var text	= tQuery.createText("tQuery is Fun!", {
+		// 	font	: "droid sans"
+		// }).scaleBy(1/4).addTo(world).translateX(2).translateY(0.3).translateZ(-0.2);
+		
+		// // enable domEvent on this world
+		// world.enableDomEvent();	
+		// // create a cube
+		// var cube	= tQuery.createCube().addTo(world);
+		// // bind some event on it
+		// tQuery('cube').on('mouseover', function(event){
+		// 	console.log(event.type, "on cube", event)
+		// });	
+		// tQuery('cube').on('click', function(event){
+		// 	console.log("click on cube", event)
+		// });
+		// tQuery(world.tScene()).on('click', function(event){
+		// 	console.log("click on scene", event);
+		// });
+
+
+
+		// make the object rotate
+		// world.hook(function(delta, now){
+		// 	var angle	= 0.05 * now * Math.PI * 2;
+		// 	planet.get(0).rotation.y	= angle;
+
+		// 	var curScale	= planet.get(0).scale.x;
+		// 	var dstScale	= tQuery.keyboard().pressed('a') ? 2 : 1;
+		// 	planet.scale( curScale + (dstScale-curScale)*0.1 );
+		// });
+		
+		// text.setBasicMaterial({
+		// 	envMap	: tQuery.createCubeTexture('skybox')
+		// })
+
+		// var tMaterial	= new THREE.MeshBasicMaterial({
+		// 	map	: tQuery.createVideoTexture('../../videos/examples/sintel.ogv'),
+		// 	//map	: tQuery.createWebcamTexture()
+		// });
+		// var object	= tQuery.createSphere(tMaterial).addTo(world).scaleBy(1);
+		
+		
+	});
+</script>
+
+
+

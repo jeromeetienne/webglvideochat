@@ -1,0 +1,23 @@
+<!doctype html><title>Minimal tQuery Page</title>
+<script src="../../../build/tquery-bundle.js"></script>
+
+
+<script src="../../videos/tquery.createVideoTexture.js"></script>
+<script src="../../videos/tquery.createWebcamTexture.js"></script>
+<script src="../../videos/tquery.createTVSnowTexture.js"></script>
+
+<body><script>
+	var world	= tQuery.createWorld().boilerplate().start();
+
+	var texture	= tQuery.createWebcamTexture();
+	//var texture	= tQuery.createTVSnowTexture();
+	//var texture	= tQuery.createVideoTexture('sintel.ogv');
+
+
+	tQuery.createSphere().addTo(world)
+		.rotateY(-Math.PI/2)
+		.setBasicMaterial()
+			.map(texture)
+			.back();
+
+</script></body>
