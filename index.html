@@ -104,19 +104,24 @@ require([ 'tquery.loaders'
 	rtc.on('connections', function(connections){
 		console.log('received connections event', connections)
 	})
-
         rtc.on('add remote stream', function(mediaStream, socketId) {
-		createScreen(mediaStream)
+		createScreen(mediaStream, 'socketId-'+socketId)
 			.addClass('socketId-'+socketId)
 		reflowScreens();
-        });
-
+        })
 	rtc.on('disconnect stream', function(socketId) {
-		var nRemote	= tQuery('.socketId-'+socketId).length;
-		console.log('remove',socketId,'currently', nRemote);
-		// TODO related to 'destroy' event
-		//tQuery('.socketId-'+socketId).destroy();
-	});
+		// get the disconnected screen
+		var screen	= tQuery('.socketId-'+socketId);
+		console.assert( screen.length === 1);
+		// detach the screen from the scene
+		screen.detach();
+		// get the video texture and stop
+		var plane	= tQuery('.plane', screen);
+		var texture	= plane.get(0).material.map;
+		texture.poorlyCodedClose();
+		// reflow the screens
+		reflowScreens();
+	})
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	//		comment								//
@@ -151,7 +156,7 @@ require([ 'tquery.loaders'
 			tObject3D.position.x	= width * (idx + offsetX);
 		})
 		// set camera position depending on nScreens
-		var camera	= world.camera();		
+		var camera	= world.camera();
 		if( nScreens === 0 || nScreens === 1 || nScreens === 2 ){
 			camera.positionZ( 1.5 );
 		}else if( nScreens === 3 ){
@@ -185,15 +190,15 @@ require([ 'tquery.loaders'
 			.positionY(-0.4)
 			.addClass('tvSet')
 
-		// var url		= URL.createObjectURL(mediaStream);
-		// var texture	= tQuery.createVideoTexture(url);
-		// tQuery.createPlane().addTo(container)
-		// 	.addClass('plane')
-		// 	.setBasicMaterial()
-		// 		.map(texture)
-		// 		.back()
-		// 	.positionY(0.5).positionY(0.31).positionZ(0.16)
-		// 	.scaleX(1/2.2).scaleY(1/2.85)
+		var url		= URL.createObjectURL(mediaStream);
+		var texture	= tQuery.createVideoTexture(url);
+		tQuery.createPlane().addTo(container)
+			.addClass('plane')
+			.setBasicMaterial()
+				.map(texture)
+				.back()
+			.positionY(0.5).positionY(0.31).positionZ(0.16)
+			.scaleX(1/2.2).scaleY(1/2.85)
 				
 		// // FIXME this event isnt really triggered
 		// // TODO code that in tQuery.Node
