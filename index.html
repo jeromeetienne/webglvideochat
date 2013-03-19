@@ -1,6 +1,16 @@
 <!doctype html><title>WebGL Video Chat</title>
 <script src="vendor/tquery/build/tquery-bundle-require.js"></script>
-<body><script>
+<body><div id="info" style='color: white'>
+	WebGL Video Chat <a href='http://twitter.com/jerome_etienne' target='_blank'>@jerome_etienne</a>
+	-
+	a video chat in WebGL with WebRTC
+	<br/>
+	<a href='https://github.com/mrdoob/three.js/' target='_blank'>three.js</a> with
+	<a href='http://jeromeetienne.github.com/tquery/' target='_blank'>tQuery API</a> for 3D
+	-
+	<a href='https://github.com/webRTC/webRTC.io/' target='_blank'>webrtc.io</a> for WebRTC
+	- hosted on <a href='http://nodejitsu.com/' target='_blank'>nodejitsu</a>
+</div><script>
 requirejs.config({
 	paths	: {
 		'build'		: 'vendor/tquery/build',
@@ -17,7 +27,7 @@ require([ 'tquery.loaders'
 	, 'tquery.videos'
 	, 'tquery.webrtcio'
 ], function(){
-	var world	= tQuery.createWorld().boilerplate().start();
+	var world	= tQuery.createWorld().boilerplate().pageTitle('#info').start();
 	
 	world.shadowMapEnabled(true)
 	world.tCamera().position.y	= 0.75
@@ -85,23 +95,7 @@ require([ 'tquery.loaders'
 	
 	
 	var room	= 'public';
-	var serverUrl	= "ws://localhost:8000/";
-	
-	function onModelLoaded(){
-		// connect the server
-		rtc.connect(serverUrl, room);
-		// honot nostream
-		var nostream	= window.location.hash === '#nostream'
-		if( nostream )	return;
-		// create a local stream
-		rtc.createStream({'video': true, 'audio': true}, function(mediaStream){
-			console.log('created stream', arguments)
-			createScreen(mediaStream)
-			reflowScreens();
-		}, function(){
-			console.log('createStream failed', arguments)
-		});
-	}
+	var serverUrl	= 'ws://' + window.location.host + window.location.pathname;
 	
 	rtc.on('connect', function(){
 		console.log('connected to server', serverUrl)
@@ -124,16 +118,59 @@ require([ 'tquery.loaders'
 		//tQuery('.socketId-'+socketId).destroy();
 	});
 	
+	//////////////////////////////////////////////////////////////////////////////////
+	//		comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	
+	function onModelLoaded(){
+		// connect the server
+		rtc.connect(serverUrl, room);
+		// honor nostream
+		var nostream	= window.location.hash === '#nostream'
+		if( nostream )	return;
+		// create a local stream
+		rtc.createStream({'video': true, 'audio': true}, function(mediaStream){
+			console.log('created stream', arguments)
+			createScreen(mediaStream)
+			reflowScreens();
+		}, function(){
+			console.log('createStream failed', arguments)
+		});
+	}
+	
 	/**
 	 * adapt screens layout depending on their numbers
 	 */
 	function reflowScreens(){
 		var screens	= tQuery('.screen');
+		var nScreens	= screens.length;
 		var offsetX	= -(screens.length - 1)/2
 		var width	= 0.7
 		screens.each(function(tObject3D, idx){
 			tObject3D.position.x	= width * (idx + offsetX);
 		})
+		// set camera position depending on nScreens
+		var camera	= world.camera();		
+		if( nScreens === 0 || nScreens === 1 || nScreens === 2 ){
+			camera.positionZ( 1.5 );
+		}else if( nScreens === 3 ){
+			camera.positionZ( 2.0 );
+		}else if( nScreens === 4 ){
+			camera.positionZ( 2.5 );
+		}else if( nScreens === 5 ){
+			camera.positionZ( 3.5 );
+		}else if( nScreens === 6 ){
+			camera.positionZ( 4.0 );
+		}else if( nScreens === 7 ){
+			camera.positionZ( 4.5 );
+		}else if( nScreens === 8 ){
+			camera.positionZ( 5 );
+		}else if( nScreens === 9 ){
+			camera.positionZ( 5.5 );
+		}else if( nScreens === 10 ){
+			camera.positionZ( 6 );
+		}
 	}
 	/**
 	 * create a 3d screen for a mediaStream
@@ -148,15 +185,15 @@ require([ 'tquery.loaders'
 			.positionY(-0.4)
 			.addClass('tvSet')
 
-		var url		= URL.createObjectURL(mediaStream);
-		var texture	= tQuery.createVideoTexture(url);
-		tQuery.createPlane().addTo(container)
-			.addClass('plane')
-			.setBasicMaterial()
-				.map(texture)
-				.back()
-			.positionY(0.5).positionY(0.31).positionZ(0.16)
-			.scaleX(1/2.2).scaleY(1/2.85)
+		// var url		= URL.createObjectURL(mediaStream);
+		// var texture	= tQuery.createVideoTexture(url);
+		// tQuery.createPlane().addTo(container)
+		// 	.addClass('plane')
+		// 	.setBasicMaterial()
+		// 		.map(texture)
+		// 		.back()
+		// 	.positionY(0.5).positionY(0.31).positionZ(0.16)
+		// 	.scaleX(1/2.2).scaleY(1/2.85)
 				
 		// // FIXME this event isnt really triggered
 		// // TODO code that in tQuery.Node
@@ -167,4 +204,29 @@ require([ 'tquery.loaders'
 		return container;
 	}
 });
-</script></body>
+</script>
+
+<!-- github ribbon -->
+<a href="https://github.com/jeromeetienne/webglvideochat" target='_blank'><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+<!-- share buttons -->
+<div style='position: absolute; margin: 10px; top: 0px'>
+  <!-- twitter share button -->
+  <a href="https://twitter.com/share" class="twitter-share-button" data-text='WebGLVideoChat is a video chat in webgl with webrtc. Check it out!' data-via="jerome_etienne">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  <br/>
+  <!-- google plus button -->
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div class="g-plusone" data-size="small"></div>
+
+  <!-- Place this tag after the last +1 button tag. -->
+  <script type="text/javascript">
+    (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+    })();
+  </script>
+</div>
+
+</body>
