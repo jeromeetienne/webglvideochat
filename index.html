@@ -1,6 +1,13 @@
 <!doctype html><title>WebGL Video Chat</title>
 <script src="vendor/tquery/build/tquery-bundle-require.js"></script>
-<body><div id="info" style='color: white'>
+<body>
+<div style="position: absolute; font-size: 200%; font-weight: bolder; right: 1em; bottom: 0.5em;" id='uiContainer'>
+	<form action="javascript:void(0)" id='roomNameForm' style='display: inline-block'>
+		<span>ROOM :</span>
+		<input type="text" class='roomName' size='10' style='font-size: inherit;'/>
+		<input type='button' class='butRandom' value='random'/>
+	</form>
+</div><div id="info" style='color: white'>
 	WebGL Video Chat <a href='http://twitter.com/jerome_etienne' target='_blank'>@jerome_etienne</a>
 	-
 	a video chat in WebGL with WebRTC
@@ -27,7 +34,10 @@ require([ 'tquery.loaders'
 	, 'tquery.videos'
 	, 'tquery.webrtcio'
 ], function(){
-	var world	= tQuery.createWorld().boilerplate().pageTitle('#info').start();
+	var world	= tQuery.createWorld().boilerplate({
+		screenshot	: false,
+		fullscreen	: false
+	}).pageTitle('#info').start();
 	
 	world.shadowMapEnabled(true)
 	world.tCamera().position.y	= 0.75
@@ -44,7 +54,7 @@ require([ 'tquery.loaders'
 	world.tRenderer().setClearColorHex( 0x000000, 1 );
 	
 	// add the fog
-	world.addFogExp2({density: 0.15});
+	world.addFogExp2({density: 0.3});
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add ground							//
@@ -94,11 +104,9 @@ require([ 'tquery.loaders'
 	//////////////////////////////////////////////////////////////////////////////////
 	
 	
-	var room	= 'public';
-	var serverUrl	= 'ws://' + window.location.host + window.location.pathname;
 	
 	rtc.on('connect', function(){
-		console.log('connected to server', serverUrl)
+		console.log('connected to server')
 	})
 
 	rtc.on('connections', function(connections){
@@ -123,16 +131,39 @@ require([ 'tquery.loaders'
 		reflowScreens();
 	})
 	
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	//		comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 	
-	
+	// determine roomName
+	location.hash	= location.hash	|| 'Public';
+	var roomName	= location.hash.slice(1).match(/^(.*)-?/)[0];
+	var nostream	= location.hash.slice(1).match(/-nostream$/) ? true : false;
+	// set the input value
+	document.querySelector('#roomNameForm .roomName').value	= roomName;
+	// handle roomNameForm
+	var roomNameForm	= document.querySelector('#roomNameForm')
+	roomNameForm.addEventListener('submit', function(){
+		roomName	= roomNameForm[0].value;
+		window.location.hash	= '#' + roomName;
+		window.location.reload();
+	});
+	document.querySelector('#roomNameForm .butRandom').addEventListener('click', function(){
+		roomName	= 'room-' + Math.floor((Math.random()) * 0xffff).toString(16);
+		window.location.hash	= '#' + roomName;
+		window.location.reload();
+	});
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
 	function onModelLoaded(){
 		// connect the server
-		rtc.connect(serverUrl, room);
+		var serverUrl	= 'ws://' + window.location.host + window.location.pathname;
+		rtc.connect(serverUrl, roomName);
 		// honor nostream
-		var nostream	= window.location.hash === '#nostream'
 		if( nostream )	return;
 		// create a local stream
 		rtc.createStream({'video': true, 'audio': true}, function(mediaStream){
@@ -183,13 +214,14 @@ require([ 'tquery.loaders'
 	 * @return {tQuery.Mesh}  the created tQuery.Mesh
 	 */
 	function createScreen(mediaStream){
+		// create the object3d
 		var container	= tQuery.createObject3D().addTo(world)
 			.addClass('screen')
-			
+		// add the tvset
 		tvSetModel.clone().addTo(container)
 			.positionY(-0.4)
 			.addClass('tvSet')
-
+		// create the plane of the screen
 		var url		= URL.createObjectURL(mediaStream);
 		var texture	= tQuery.createVideoTexture(url);
 		tQuery.createPlane().addTo(container)
@@ -199,13 +231,7 @@ require([ 'tquery.loaders'
 				.back()
 			.positionY(0.5).positionY(0.31).positionZ(0.16)
 			.scaleX(1/2.2).scaleY(1/2.85)
-				
-		// // FIXME this event isnt really triggered
-		// // TODO code that in tQuery.Node
-		// screen.addEventListener('destroy', function(){
-		// 	screen.detach();
-		// 	texture.poorlyCodedClose();
-		// })
+		// return container
 		return container;
 	}
 });
