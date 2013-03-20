@@ -8,9 +8,10 @@
 		<input type='button' class='butRandom' value='random'/>
 	</form>
 </div><div id="info" style='color: white'>
-	WebGL Video Chat <a href='http://twitter.com/jerome_etienne' target='_blank'>@jerome_etienne</a>
+	WebGL Video Chat 
 	-
 	a video chat in WebGL with WebRTC
+	by <a href='http://twitter.com/jerome_etienne' target='_blank'>@jerome_etienne</a>
 	<br/>
 	<a href='https://github.com/mrdoob/three.js/' target='_blank'>three.js</a> with
 	<a href='http://jeromeetienne.github.com/tquery/' target='_blank'>tQuery API</a> for 3D
@@ -37,24 +38,23 @@ require([ 'tquery.loaders'
 	var world	= tQuery.createWorld().boilerplate({
 		screenshot	: false,
 		fullscreen	: false
-	}).pageTitle('#info').start();
-	
+	}).pageTitle('#info').start()
+
 	world.shadowMapEnabled(true)
-	world.tCamera().position.y	= 0.75
-	world.tCamera().position.y	= 0.3
-	world.tCamera().position.z	= 1.5
-	//world.tCamera().position.z	= 5
+
+	world.camera().positionY(0.3).positionZ(1.5)
 
 	var target	= world.scene().position().clone().add(tQuery.createVector3(0,0,-1))
-	//var target	= world.scene().position().clone().add(tQuery.createVector3(0,0.25,-0.5))
-	world.tCamera().lookAt(target);
+	world.camera().lookAt(target);
 
 	world.removeCameraControls();
 	
 	world.tRenderer().setClearColorHex( 0x000000, 1 );
 	
 	// add the fog
-	world.addFogExp2({density: 0.3});
+	world.addFogExp2({
+		density	: 0.3
+	});
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add ground							//
@@ -137,7 +137,7 @@ require([ 'tquery.loaders'
 	//////////////////////////////////////////////////////////////////////////////////
 	
 	// determine roomName
-	location.hash	= location.hash	|| 'Public';
+	location.hash	= location.hash	|| 'room-' + Math.floor((Math.random()) * 0x10000).toString(16);
 	var roomName	= location.hash.slice(1).match(/^(.*)-?/)[0];
 	var nostream	= location.hash.slice(1).match(/-nostream$/) ? true : false;
 	// set the input value
@@ -146,13 +146,13 @@ require([ 'tquery.loaders'
 	var roomNameForm	= document.querySelector('#roomNameForm')
 	roomNameForm.addEventListener('submit', function(){
 		roomName	= roomNameForm[0].value;
-		window.location.hash	= '#' + roomName;
-		window.location.reload();
+		location.hash	= '#' + roomName;
+		location.reload();
 	});
 	document.querySelector('#roomNameForm .butRandom').addEventListener('click', function(){
-		roomName	= 'room-' + Math.floor((Math.random()) * 0xffff).toString(16);
-		window.location.hash	= '#' + roomName;
-		window.location.reload();
+		roomName	= 'room-' + Math.floor((Math.random()) * 0x10000).toString(16);
+		location.hash	= '#' + roomName;
+		location.reload();
 	});
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ require([ 'tquery.loaders'
 
 	function onModelLoaded(){
 		// connect the server
-		var serverUrl	= 'ws://' + window.location.host + window.location.pathname;
+		var serverUrl	= 'ws://' + location.host + location.pathname;
 		rtc.connect(serverUrl, roomName);
 		// honor nostream
 		if( nostream )	return;
