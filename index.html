@@ -6,9 +6,12 @@
 <body>
 <div style="position: absolute; font-size: 200%; font-weight: bolder; right: 1em; bottom: 0.5em;" id='uiContainer'>
 	<form action="javascript:void(0)" id='roomNameForm' style='display: inline-block'>
+		<div style='float: right'>
+			<input type='button' class='butRoulette'	value='roulette'/>
+			<input type='button' class='butRandom'		value='random'	/>
+		</div>
 		<span>ROOM :</span>
 		<input type="text" class='roomName' size='10' style='font-size: inherit;'/>
-		<input type='button' class='butRandom' value='random'/>
 	</form>
 </div><div id="info" style='color: white'>
 	WebGL Video Chat 
@@ -98,7 +101,11 @@ require([ 'tquery.loaders'
 		// set castShadow
 		tQuery('mesh', tvSetModel).castShadow(true)
 		// notify everybody
-		onModelLoaded();
+		if( location.hash === '#roulette'){
+			onModelLoadedRoulette();
+		}else{
+			onModelLoaded();		
+		}
 	});
 	
 	
@@ -157,19 +164,39 @@ require([ 'tquery.loaders'
 		location.hash	= '#' + roomName;
 		location.reload();
 	});
+	document.querySelector('#roomNameForm .butRoulette').addEventListener('click', function(){
+		location.hash	= '#roulette';
+		location.reload();
+	});
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 
+	function onModelLoadedRoulette(){
+		var request	= new XMLHttpRequest();
+		request.onload	= function(){
+			var response	= JSON.parse(this.responseText)
+			roomName	= response.roomName;
+			// set the input value
+			document.querySelector('#roomNameForm .roomName').value	= roomName;
+			onModelLoaded();
+		}
+		var url	= '/rouletteRoomName?'+Math.floor((Math.random()) * 0x10000).toString(16)
+		request.open("GET", url, true);
+		request.send();
+	}
+	
 	function onModelLoaded(){
 		// connect the server
 		var serverUrl	= 'ws://' + location.host + location.pathname;
 		rtc.connect(serverUrl, roomName);
+		// log to debug
+		console.log('connecting to server', serverUrl, 'in room', roomName)
 		// honor nostream
 		if( nostream )	return;
 		// create a local stream
-		rtc.createStream({'video': true, 'audio': true}, function(mediaStream){
+		rtc.createStream({'video': true, 'audio': false}, function(mediaStream){
 			console.log('created stream', arguments)
 			createScreen(mediaStream)
 			reflowScreens();
@@ -177,7 +204,7 @@ require([ 'tquery.loaders'
 			console.log('createStream failed', arguments)
 		});
 	}
-	
+
 	/**
 	 * adapt screens layout depending on their numbers
 	 */
